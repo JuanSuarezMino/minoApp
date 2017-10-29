@@ -4,16 +4,33 @@ from wtforms import Form, StringField, TextAreaField, PasswordField, validators
 from passlib.hash import sha256_crypt
 #from functools import wraps
 import pygal # for graphs
-
+import os
 
 app = Flask(__name__)
 
+APP_ROOT = os.path.dirname(os.path.abspath(__file__))
+
 @app.route('/')
-def home():
-	return '<h1> I am home <h1>'
+def index():
+	return render_template('upload.html')
 
 
+@app.route('/upload', methods=['POST'])
+def upload():
+	target = os.path.join(APP_ROOT, 'images/')
+	print(target)
 
+	if not os.path.isdir(target):
+		os.mdir(target)
+
+	#file as parameter refers to the form -- and the selected files	and rturn a list of files
+	for file in request.files.getlist("file"):
+		print(file)
+		filename = file.filename
+		destination = '/'.join([target, filename])
+		print(destination)
+		file.save(destination)
+	return render_template('complete.html')
 
 if __name__	== '__main__':
 	app.run(debug=True, port=9000)
